@@ -18,7 +18,3 @@ export type AppDispatch = typeof store.dispatch
 
 export const useAppDispatch: UseDispatch<AppDispatch> = useDispatch
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-
-export const connectToObs = () => async (dispatch: AppDispatch) => {
-    window.electron.ipcRenderer.send('connect-to-obs')
-}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../shared/store'
 import { saveObsConfig, updateConfig } from '../shared/store/obs.slice'
-import { updateOverlaySettings, updateCustomPosition } from '../shared/store/overlay.slice'
+import { updateOverlaySettings, updateCustomPosition, saveOverlayConfig } from '../shared/store/overlay.slice'
 import {
     Layout,
     Menu,
@@ -19,9 +19,14 @@ import {
     Space,
     theme
 } from 'antd'
+import styled from 'styled-components'
 
 const { Header, Sider, Content } = Layout
 const { Title, Text } = Typography
+
+const StyledFormItem = styled(Form.Item)`
+margin-bottom: 4px;
+`
 
 const SettingsPage: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -41,6 +46,9 @@ const SettingsPage: React.FC = () => {
     const save_setting_obs_config = () => {
         dispatch(updateConfig(obsConfig))
         saveObsConfig(obsConfig)
+    }
+    const save_setting_overlay_config = () => {
+        saveOverlayConfig(overlay)
     }
 
     const handleOverlayToggle = (setting: keyof typeof overlay) => {
@@ -78,16 +86,16 @@ const SettingsPage: React.FC = () => {
                 </div>
 
                 <Form layout="vertical">
-                    <Form.Item label="Host">
+                    <StyledFormItem label="Host">
                         <Input
                             id="host"
                             name="host"
                             value={obsConfig.host}
                             onChange={handleObsConfigChange}
                         />
-                    </Form.Item>
+                    </StyledFormItem>
 
-                    <Form.Item label="Port">
+                    <StyledFormItem label="Port">
                         <InputNumber
                             id="port"
                             name="port"
@@ -95,16 +103,16 @@ const SettingsPage: React.FC = () => {
                             onChange={(value) => setObsConfig({ ...obsConfig, port: Number(value) })}
                             style={{ width: '100%' }}
                         />
-                    </Form.Item>
+                    </StyledFormItem>
 
-                    <Form.Item label="Password">
+                    <StyledFormItem label="Password">
                         <Input.Password
                             id="password"
                             name="password"
                             value={obsConfig.password}
                             onChange={handleObsConfigChange}
                         />
-                    </Form.Item>
+                    </StyledFormItem>
 
                     <Button type="primary" onClick={save_setting_obs_config}>
                         Save Connection Settings
@@ -114,141 +122,137 @@ const SettingsPage: React.FC = () => {
         </div>
     )
 
-    const renderDisplayElements = () => (
-        <div className="settings-tab-content">
-            <Title level={3}>Display Elements</Title>
-            <Space direction="vertical" style={{ width: '100%' }}>
-                <Form layout="vertical">
-                    <Form.Item label="Show Status Text">
-                        <Switch
-                            checked={overlay.showStatusText}
-                            onChange={() => handleOverlayToggle('showStatusText')}
-                        />
-                    </Form.Item>
+    const renderOverlaySettings = () => (
+        <>
+            <div className="settings-tab-content">
+                <Title level={3}>Display Elements</Title>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <Form layout="vertical">
+                        <StyledFormItem label="Show Status Text">
+                            <Switch
+                                checked={overlay.showStatusText}
+                                onChange={() => handleOverlayToggle('showStatusText')}
+                            />
+                        </StyledFormItem>
 
-                    <Form.Item label="Show Pause Button">
-                        <Switch
-                            checked={overlay.showPauseButton}
-                            onChange={() => handleOverlayToggle('showPauseButton')}
-                        />
-                    </Form.Item>
+                        <StyledFormItem label="Show Pause Button">
+                            <Switch
+                                checked={overlay.showPauseButton}
+                                onChange={() => handleOverlayToggle('showPauseButton')}
+                            />
+                        </StyledFormItem>
 
-                    <Form.Item label="Show Refresh Button">
-                        <Switch
-                            checked={overlay.showRefreshButton}
-                            onChange={() => handleOverlayToggle('showRefreshButton')}
-                        />
-                    </Form.Item>
+                        <StyledFormItem label="Show Refresh Button">
+                            <Switch
+                                checked={overlay.showRefreshButton}
+                                onChange={() => handleOverlayToggle('showRefreshButton')}
+                            />
+                        </StyledFormItem>
 
-                    <Form.Item label="Show Move Button">
-                        <Switch
-                            checked={overlay.showMoveButton}
-                            onChange={() => handleOverlayToggle('showMoveButton')}
-                        />
-                    </Form.Item>
-                </Form>
-            </Space>
-        </div>
-    )
+                        <StyledFormItem label="Show Move Button">
+                            <Switch
+                                checked={overlay.showMoveButton}
+                                onChange={() => handleOverlayToggle('showMoveButton')}
+                            />
+                        </StyledFormItem>
+                    </Form>
+                </Space>
+            </div>
+            <div className="settings-tab-content">
+                <Title level={3}>Position Settings</Title>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <Form layout="vertical">
+                        <StyledFormItem label="Position Type">
+                            <Radio.Group
+                                value={overlay.defaultPosition}
+                                onChange={(e) => handlePositionTypeChange(e.target.value)}
+                            >
+                                <Radio value="center">Center</Radio>
+                                <Radio value="custom">Custom</Radio>
+                            </Radio.Group>
+                        </StyledFormItem>
 
-    const renderPositionSettings = () => (
-        <div className="settings-tab-content">
-            <Title level={3}>Position Settings</Title>
-            <Space direction="vertical" style={{ width: '100%' }}>
-                <Form layout="vertical">
-                    <Form.Item label="Position Type">
-                        <Radio.Group
-                            value={overlay.defaultPosition}
-                            onChange={(e) => handlePositionTypeChange(e.target.value)}
+                        {overlay.defaultPosition === 'custom' && (
+                            <div>
+                                <Row gutter={16}>
+                                    <Col span={12}>
+                                        <StyledFormItem label="X Position">
+                                            <InputNumber
+                                                value={overlay.customPosition.x}
+                                                onChange={(value) => handleCustomPositionChange('x', Number(value))}
+                                                style={{ width: '100%' }}
+                                            />
+                                        </StyledFormItem>
+                                    </Col>
+                                    <Col span={12}>
+                                        <StyledFormItem label="Y Position">
+                                            <InputNumber
+                                                value={overlay.customPosition.y}
+                                                onChange={(value) => handleCustomPositionChange('y', Number(value))}
+                                                style={{ width: '100%' }}
+                                            />
+                                        </StyledFormItem>
+                                    </Col>
+                                </Row>
+                            </div>
+                        )}
+                    </Form>
+                </Space>
+            </div>
+            <div className="settings-tab-content">
+                <Title level={3}>Opacity & Idle Behavior</Title>
+                <Space direction="vertical" style={{ width: '100%' }}>
+                    <Form layout="vertical">
+                        <StyledFormItem
+                            label={`Idle Time (seconds): ${overlay.idleTimeSeconds}s`}
                         >
-                            <Radio value="center">Center</Radio>
-                            <Radio value="custom">Custom</Radio>
-                        </Radio.Group>
-                    </Form.Item>
+                            <Slider
+                                min={1}
+                                max={60}
+                                value={overlay.idleTimeSeconds}
+                                onChange={(value) => handleIdleTimeChange(Number(value))}
+                            />
+                        </StyledFormItem>
 
-                    {overlay.defaultPosition === 'custom' && (
-                        <div>
-                            <Row gutter={16}>
-                                <Col span={12}>
-                                    <Form.Item label="X Position">
-                                        <InputNumber
-                                            value={overlay.customPosition.x}
-                                            onChange={(value) => handleCustomPositionChange('x', Number(value))}
-                                            style={{ width: '100%' }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={12}>
-                                    <Form.Item label="Y Position">
-                                        <InputNumber
-                                            value={overlay.customPosition.y}
-                                            onChange={(value) => handleCustomPositionChange('y', Number(value))}
-                                            style={{ width: '100%' }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </div>
-                    )}
-                </Form>
-            </Space>
-        </div>
-    )
+                        <StyledFormItem
+                            label={`Initial Opacity: ${overlay.initialOpacity * 100}%`}
+                        >
+                            <Slider
+                                min={0}
+                                max={1}
+                                step={0.1}
+                                value={overlay.initialOpacity}
+                                onChange={(value) => handleOpacityChange('initialOpacity', Number(value))}
+                            />
+                        </StyledFormItem>
 
-    const renderOpacitySettings = () => (
-        <div className="settings-tab-content">
-            <Title level={3}>Opacity & Idle Behavior</Title>
-            <Space direction="vertical" style={{ width: '100%' }}>
-                <Form layout="vertical">
-                    <Form.Item
-                        label={`Idle Time (seconds): ${overlay.idleTimeSeconds}s`}
-                    >
-                        <Slider
-                            min={1}
-                            max={60}
-                            value={overlay.idleTimeSeconds}
-                            onChange={(value) => handleIdleTimeChange(Number(value))}
-                        />
-                    </Form.Item>
+                        <StyledFormItem
+                            label={`Idle Opacity: ${overlay.idleOpacity * 100}%`}
+                        >
+                            <Slider
+                                min={0}
+                                max={1}
+                                step={0.1}
+                                value={overlay.idleOpacity}
+                                onChange={(value) => handleOpacityChange('idleOpacity', Number(value))}
+                            />
+                        </StyledFormItem>
+                    </Form>
+                </Space>
+            </div>
 
-                    <Form.Item
-                        label={`Initial Opacity: ${overlay.initialOpacity * 100}%`}
-                    >
-                        <Slider
-                            min={0}
-                            max={1}
-                            step={0.1}
-                            value={overlay.initialOpacity}
-                            onChange={(value) => handleOpacityChange('initialOpacity', Number(value))}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        label={`Idle Opacity: ${overlay.idleOpacity * 100}%`}
-                    >
-                        <Slider
-                            min={0}
-                            max={1}
-                            step={0.1}
-                            value={overlay.idleOpacity}
-                            onChange={(value) => handleOpacityChange('idleOpacity', Number(value))}
-                        />
-                    </Form.Item>
-                </Form>
-            </Space>
-        </div>
+            <Button type="primary" onClick={save_setting_overlay_config}>
+                Save Overlay Settings
+            </Button>
+        </>
     )
 
     const getTabContent = () => {
         switch (activeTab) {
             case 'obs':
                 return renderOBSContent()
-            case 'display':
-                return renderDisplayElements()
-            case 'position':
-                return renderPositionSettings()
-            case 'opacity':
-                return renderOpacitySettings()
+            case 'overlay':
+                return renderOverlaySettings()
             default:
                 return renderOBSContent()
         }
@@ -264,11 +268,7 @@ const SettingsPage: React.FC = () => {
                     onClick={({ key }) => setActiveTab(key as string)}
                 >
                     <Menu.Item key="obs">OBS Connection</Menu.Item>
-                    <Menu.ItemGroup title="Overlay Settings">
-                        <Menu.Item key="display">Display Elements</Menu.Item>
-                        <Menu.Item key="position">Position</Menu.Item>
-                        <Menu.Item key="opacity">Opacity & Idle</Menu.Item>
-                    </Menu.ItemGroup>
+                    <Menu.Item key="overlay">Overlay Settings</Menu.Item>
                 </Menu>
             </Sider>
             <Layout style={{ padding: 16, height: '100%', overflow: 'auto' }}>

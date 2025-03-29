@@ -42,4 +42,8 @@ export const saveObsConfig = (obsConfig: ObsState['config']) => {
     window.electron.ipcRenderer.send('save-obs-config', config)
 }
 
+export const connectToObs = () => {
+    window.electron.ipcRenderer.send('connect-to-obs')
+}
+
 export default obsSlice

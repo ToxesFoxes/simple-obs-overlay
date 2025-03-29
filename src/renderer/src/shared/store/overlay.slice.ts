@@ -53,8 +53,7 @@ export const {
     toggleOption
 } = overlaySlice.actions
 
-export const saveOverlayConfig = () => async (dispatch: AppDispatch, getState: any) => {
-    const config = getState().overlaySlice
+export const saveOverlayConfig = (config: OverlayState) => {
     window.electron.ipcRenderer.send('save-overlay-config', config)
 }
 
