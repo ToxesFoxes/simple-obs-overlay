@@ -1,0 +1,23 @@
+{
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "javascript.format.semicolons": "remove",
+  "typescript.format.semicolons": "remove",
+  "workbench.editor.customLabels.patterns": {
+    "*/src/**/index.*": "${dirname} (${extname})",
+    "*/src/**/[A-z]omponents/**/index.*": "${dirname(2)} / ${dirname} (${extname})",
+    "*/.vscode/settings.json": "Workspace Settings (JSON)",
+    "*/.gitignore": "GIT Ignore",
+    "*/package.json": "Packages",
+    "*/package-lock.json": "Packages (lockfile)"
+  },
+  "workbench.editor.customLabels.enabled": true
+}
