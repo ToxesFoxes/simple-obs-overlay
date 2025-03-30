@@ -1,9 +1,14 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { obs } from '../../api/obs'
-export type WindowState = 'loading' | 'loading-with-error' | 'config' | 'overlay'
+import { WindowManager, WindowState } from '../window-manager'
 
 export const bindEvents = (w: BrowserWindow) => {
     const send = (w.webContents.send).bind(w.webContents)
+    const windowManager = new WindowManager(w)
+
+    // Initialize with the loading state
+    windowManager.changeWindowState('loading')
+
     ipcMain.on("obs-refresh-status", () => {
         obs.call("GetRecordStatus").then((res) => {
             send("obs-record-status", res)
@@ -24,39 +29,16 @@ export const bindEvents = (w: BrowserWindow) => {
         send("obs-connect-status", data)
     })
 
-    ipcMain.on('window-change', (_event, data: WindowState) => {
-        switch (data) {
-            case 'loading': {
-                w.setSize(280, 108)
-                w.setMaximumSize(280, 108)
-                w.setResizable(false)
-                w.setMaximizable(false)
-                break
-            }
-            case 'loading-with-error': {
-                w.setSize(280, 230)
-                w.setMaximumSize(280, 230)
-                w.setResizable(false)
-                w.setMaximizable(false)
-                break
-            }
-            case 'overlay': {
-                w.setSize(280, 40)
-                w.setMaximumSize(280, 40)
-                w.setResizable(false)
-                w.setMaximizable(false)
-                w.setAlwaysOnTop(true, 'screen-saver')
-                break
-            }
-            case 'config': {
-                w.setSize(800, 600)
-                w.setMaximumSize(800, 600)
-                w.center()
-                w.setResizable(true)
-                w.setMaximizable(true)
-                break
-            }
-        }
+    // Handle window state change requests from renderer
+    ipcMain.on('window-change', (_event, state: WindowState) => {
+        windowManager.changeWindowState(state)
+        // Notify renderer about the window state change
+        send('window-state-changed', state)
+    })
+
+    // Expose method to get current window state
+    ipcMain.handle('get-window-state', () => {
+        return windowManager.getCurrentState()
     })
 
     return obs

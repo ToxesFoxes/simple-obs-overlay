@@ -9,7 +9,6 @@ import Paragraph from 'antd/es/typography/Paragraph'
 
 export const LoadingWindow = () => {
     const dispatch = useAppDispatch()
-    const ipc = window.electron.ipcRenderer
     const [connectionAttempts, setConnectionAttempts] = useState(0)
     const [showConnectionTip, setShowConnectionTip] = useState(false)
     const obsConnected = useAppSelector(state => state.obsSlice.connected)
@@ -62,18 +61,16 @@ export const LoadingWindow = () => {
     // Эффект для изменения размера окна при отображении ошибки
     useEffect(() => {
         if (showConnectionTip && !obsConnected) {
-            ipc.send('window-change', 'loading-with-error')
+            dispatch(changeWindow({ windowState: 'loading-with-error' }))
         } else {
-            ipc.send('window-change', 'loading')
+            dispatch(changeWindow({ windowState: 'loading' }))
         }
-    }, [showConnectionTip, obsConnected])
+    }, [showConnectionTip, obsConnected, dispatch])
 
     const goToConfig = () => {
         // Останавливаем процесс второй попытки подключения, если он активен
         stopConnecting()
-
         dispatch(changeWindow({ windowState: 'config' }))
-        ipc.send('window-change', 'config')
     }
 
     return (
@@ -81,7 +78,7 @@ export const LoadingWindow = () => {
             height: '100vh', width: '100vw'
         }}>
             <Card
-                style={{ height: '100%',width: '100%' }}
+                style={{ height: '100%', width: '100%' }}
                 styles={{ body: showConnectionTip && !obsConnected ? { padding: 0 } : {} }}
                 title={
                     <Flex justify='space-between'>
@@ -113,7 +110,7 @@ export const LoadingWindow = () => {
                                 </Paragraph>
                             }
                             type="warning"
-                            style={{ marginTop: 0, width: '100%', padding: 4,height: '100%',borderTopLeftRadius: 0,borderTopRightRadius: 0 }}
+                            style={{ marginTop: 0, width: '100%', padding: 4, height: '100%', borderTopLeftRadius: 0, borderTopRightRadius: 0 }}
                         />
                     ) : <>
                         <Typography.Text>

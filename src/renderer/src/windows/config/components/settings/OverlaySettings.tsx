@@ -1,6 +1,6 @@
 import React from 'react'
-import { useAppDispatch, useAppSelector } from '../../shared/store'
-import { updateOverlaySettings, updateCustomPosition, saveOverlayConfig } from '../../shared/store/overlay.slice'
+import { useAppDispatch, useAppSelector } from '../../../../shared/store'
+import { updateOverlaySettings, updateCustomPosition, saveOverlayConfig } from '../../../../shared/store/overlay.slice'
 import { Form, Button, Switch, Radio, Slider, InputNumber, Typography, Row, Col, Space } from 'antd'
 import styled from 'styled-components'
 

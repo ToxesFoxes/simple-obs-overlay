@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { DragOutlined, ReloadOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, SettingOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { useInterval } from 'usehooks-ts'
-import { useAppDispatch } from '../../../../shared/store'
+import { useAppDispatch, useAppSelector } from '../../../../shared/store'
 import { changeWindow } from '../../../../shared/store/windows.slice'
 
 export const duration = (time: number) => {
@@ -39,6 +39,7 @@ export const ObsStatus = () => {
     const [recordTime, setRecordTime] = useState(0)
     const ipc = window.electron.ipcRenderer
     const dispatch = useAppDispatch()
+    const obsConnected = useAppSelector(state => state.obsSlice.connected)
     const recording = recordState === RecordStatesEnum.started || recordState === RecordStatesEnum.resumed
     const paused = recordState === RecordStatesEnum.paused
 
@@ -61,7 +62,6 @@ export const ObsStatus = () => {
 
     const goToSettings = () => {
         dispatch(changeWindow({ windowState: 'config' }))
-        ipc.send('window-change', 'config')
     }
 
     useEffect(() => {
@@ -100,6 +100,7 @@ export const ObsStatus = () => {
 
     // Determine badge status based on recording and paused state
     const getBadgeStatus = () => {
+        if (!obsConnected) return 'error'
         if (recording) return 'processing'
         if (paused) return 'warning'
         return 'default'
@@ -107,6 +108,7 @@ export const ObsStatus = () => {
 
     // Get status text
     const getStatusText = () => {
+        if (!obsConnected) return 'Нет соединения'
         if (recording) return 'Запись'
         if (paused) return 'Пауза'
         return 'Готов'
@@ -134,7 +136,7 @@ export const ObsStatus = () => {
                 <Typography.Text style={{ minWidth: '40px' }}>{getStatusText()}</Typography.Text>
                 <Typography.Text>{formatDuration(duration(recordTime))}</Typography.Text>
 
-                {!recording && !paused && (
+                {!recording && !paused && obsConnected && (
                     <Button
                         type="primary"
                         size="small"
@@ -150,6 +152,7 @@ export const ObsStatus = () => {
                         icon={<PauseCircleOutlined />}
                         onClick={pause}
                         style={{ backgroundColor: '#faad14', color: '#000' }}
+                        disabled={!obsConnected}
                     />
                 )}
 
@@ -159,6 +162,7 @@ export const ObsStatus = () => {
                         icon={<PlayCircleOutlined />}
                         onClick={resume}
                         style={{ backgroundColor: '#52c41a' }}
+                        disabled={!obsConnected}
                     />
                 )}
 
@@ -168,6 +172,7 @@ export const ObsStatus = () => {
                         danger
                         icon={<StopOutlined />}
                         onClick={stop}
+                        disabled={!obsConnected}
                     />
                 )}
             </Flex>
@@ -176,7 +181,8 @@ export const ObsStatus = () => {
                     type='text'
                     size='middle'
                     onClick={refresh}
-                    icon={<ReloadOutlined />} />
+                    icon={<ReloadOutlined />}
+                    disabled={!obsConnected} />
                 <Button
                     type='text'
                     size='middle'

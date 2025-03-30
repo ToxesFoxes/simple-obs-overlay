@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { useAppDispatch, useAppSelector } from '../../shared/store'
-import { connectToObs, saveObsConfig, updateConfig } from '../../shared/store/obs.slice'
+import { useAppDispatch, useAppSelector } from '../../../../shared/store'
+import { connectToObs, saveObsConfig, updateConfig } from '../../../../shared/store/obs.slice'
 import { Form, Input, Button, InputNumber, Typography, Tag, Space, Flex } from 'antd'
 import styled from 'styled-components'
-import { changeWindow } from '../../shared/store/windows.slice'
+import { changeWindow } from '../../../../shared/store/windows.slice'
 
 const { Title, Text } = Typography
 
@@ -44,7 +44,6 @@ const ObsConnectionSettings: React.FC = () => {
 
     const goToOverlay = () => {
         dispatch(changeWindow({ windowState: 'overlay' }))
-        window.electron.ipcRenderer.send('window-change', 'overlay')
     }
 
     return (

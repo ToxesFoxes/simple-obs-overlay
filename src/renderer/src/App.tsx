@@ -4,7 +4,7 @@ import { ConfigWindow } from './windows/config'
 import { LoadingWindow } from './windows/loading'
 import { OverlayWindow } from './windows/overlay'
 import { setConnected, updateConfig } from './shared/store/obs.slice'
-import { changeWindow } from './shared/store/windows.slice'
+import { changeWindow, windowStateChanged, syncWindowState } from './shared/store/windows.slice'
 import { updateOverlaySettings } from './shared/store/overlay.slice'
 import { useTimeout, useBoolean } from 'usehooks-ts'
 
@@ -12,12 +12,37 @@ function App(): JSX.Element {
   const { currentState } = useAppSelector((state) => state.windowsSlice)
   const dispatch = useAppDispatch()
   const ipc = window.electron.ipcRenderer
-  const isOverlay = currentState === 'overlay'
-  const isLoading = currentState === 'loading'
+  const isLoading = currentState === 'loading' || currentState === 'loading-with-error'
   const obsConnected = useAppSelector(state => state.obsSlice.connected)
 
   // Используем useBoolean для управления переходом на оверлей
   const { value: shouldTransition, setTrue: startTransition, setFalse: stopTransition } = useBoolean(false)
+
+  // Синхронизация состояния окна при запуске
+  useEffect(() => {
+    const initializeWindowState = async () => {
+      try {
+        // Получаем текущее состояние окна из main process
+        const currentWindowState = await syncWindowState()
+
+        // Обновляем состояние в Redux без отправки обратно в main process
+        dispatch(windowStateChanged(currentWindowState))
+      } catch (error) {
+        console.error('Failed to initialize window state:', error)
+      }
+    }
+
+    initializeWindowState()
+
+    // Подписываемся на изменения состояния окна от main process
+    ipc.on('window-state-changed', (_, state) => {
+      dispatch(windowStateChanged(state))
+    })
+
+    return () => {
+      ipc.removeAllListeners('window-state-changed')
+    }
+  }, [dispatch, ipc])
 
   // Загрузка конфигурации при старте приложения
   useEffect(() => {
@@ -65,8 +90,9 @@ function App(): JSX.Element {
   // Функция для перехода в оверлей
   const transitionToOverlay = () => {
     if (shouldTransition) {
+      // Явно вызываем changeWindow, которая гарантирует, что 
+      // сообщение изменения будет отправлено в main process
       dispatch(changeWindow({ windowState: 'overlay' }))
-      ipc.send('window-change', 'overlay')
       stopTransition()
     }
   }
@@ -82,11 +108,11 @@ function App(): JSX.Element {
     } else {
       stopTransition()
     }
-  }, [obsConnected, isLoading])
+  }, [obsConnected, isLoading, startTransition, stopTransition])
 
   return (
     <>
-      {currentState === 'loading' && (<LoadingWindow />)}
+      {(currentState === 'loading' || currentState === 'loading-with-error') && (<LoadingWindow />)}
       {currentState === 'overlay' && (<OverlayWindow />)}
       {currentState === 'config' && (<ConfigWindow />)}
     </>
