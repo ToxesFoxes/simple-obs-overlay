@@ -1,9 +1,11 @@
 import { Badge, Button, Flex, Typography } from 'antd'
 import { OBSEventTypes, OBSResponseTypes } from 'obs-websocket-js'
 import { useEffect, useState } from 'react'
-import { DragOutlined, ReloadOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined } from '@ant-design/icons'
+import { DragOutlined, ReloadOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, SettingOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { useInterval } from 'usehooks-ts'
+import { useAppDispatch } from '../../../../shared/store'
+import { changeWindow } from '../../../../shared/store/windows.slice'
 
 export const duration = (time: number) => {
     const d = dayjs.duration(time, 'seconds')
@@ -36,6 +38,7 @@ export const ObsStatus = () => {
     const [recordState, setRecordState] = useState<RecordStates | null>(null)
     const [recordTime, setRecordTime] = useState(0)
     const ipc = window.electron.ipcRenderer
+    const dispatch = useAppDispatch()
     const recording = recordState === RecordStatesEnum.started || recordState === RecordStatesEnum.resumed
     const paused = recordState === RecordStatesEnum.paused
 
@@ -56,11 +59,16 @@ export const ObsStatus = () => {
         ipc.send('obs-record-start'); refresh()
     }
 
+    const goToSettings = () => {
+        dispatch(changeWindow({ windowState: 'config' }))
+        ipc.send('window-change', 'config')
+    }
+
     useEffect(() => {
         if (recordState == RecordStatesEnum.stopping) {
             setTimeout(() => {
                 setRecordTime(0)
-            }, 1000);
+            }, 1000)
         }
     }, [recordState])
 
@@ -164,14 +172,16 @@ export const ObsStatus = () => {
                 )}
             </Flex>
             <Flex>
-                {/* <pre>{JSON.stringify({
-                    paused, recordTime, recording
-                })}</pre> */}
                 <Button
                     type='text'
                     size='middle'
                     onClick={refresh}
                     icon={<ReloadOutlined />} />
+                <Button
+                    type='text'
+                    size='middle'
+                    onClick={goToSettings}
+                    icon={<SettingOutlined />} />
                 <Button
                     type='text'
                     size='middle'

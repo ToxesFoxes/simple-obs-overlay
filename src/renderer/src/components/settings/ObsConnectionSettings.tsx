@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../shared/store'
-import { saveObsConfig, updateConfig } from '../../shared/store/obs.slice'
-import { Form, Input, Button, InputNumber, Typography, Tag, Space } from 'antd'
+import { connectToObs, saveObsConfig, updateConfig } from '../../shared/store/obs.slice'
+import { Form, Input, Button, InputNumber, Typography, Tag, Space, Flex } from 'antd'
 import styled from 'styled-components'
+import { changeWindow } from '../../shared/store/windows.slice'
 
 const { Title, Text } = Typography
 
@@ -14,6 +15,7 @@ const ObsConnectionSettings: React.FC = () => {
     const dispatch = useAppDispatch()
     const obs = useAppSelector(state => state.obsSlice)
     const [obsConfig, setObsConfig] = useState(obs.config)
+    const [isConnecting, setIsConnecting] = useState(false)
 
     const handleObsConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target
@@ -24,6 +26,25 @@ const ObsConnectionSettings: React.FC = () => {
     const save_setting_obs_config = () => {
         dispatch(updateConfig(obsConfig))
         saveObsConfig(obsConfig)
+    }
+
+    const testConnection = () => {
+        setIsConnecting(true)
+        // Сохраним настройки перед тестированием
+        dispatch(updateConfig(obsConfig))
+        saveObsConfig(obsConfig)
+        // Отправляем запрос на тестирование подключения
+        connectToObs()
+
+        // Установим таймер для сброса состояния кнопки
+        setTimeout(() => {
+            setIsConnecting(false)
+        }, 2000)
+    }
+
+    const goToOverlay = () => {
+        dispatch(changeWindow({ windowState: 'overlay' }))
+        window.electron.ipcRenderer.send('window-change', 'overlay')
     }
 
     return (
@@ -66,9 +87,24 @@ const ObsConnectionSettings: React.FC = () => {
                         />
                     </StyledFormItem>
 
-                    <Button type="primary" onClick={save_setting_obs_config}>
-                        Save Connection Settings
-                    </Button>
+                    <Flex gap="small">
+                        <Button type="primary" onClick={save_setting_obs_config}>
+                            Save Connection Settings
+                        </Button>
+                        <Button
+                            type="default"
+                            onClick={testConnection}
+                            loading={isConnecting}
+                        >
+                            Test Connection
+                        </Button>
+                        <Button
+                            type="default"
+                            onClick={goToOverlay}
+                        >
+                            Go To Overlay
+                        </Button>
+                    </Flex>
                 </Form>
             </Space>
         </div>

@@ -24,11 +24,25 @@ export const config = {
     }
 }
 
+// Сохранение конфигурации OBS
 ipcMain.on('save-obs-config', async (_event, config) => {
     console.log('save-obs-config', config)
     await store.setItem('obs', config)
 })
 
+// Сохранение конфигурации оверлея
 ipcMain.on('save-overlay-config', async (_event, config) => {
     await store.setItem('overlay', config)
+})
+
+// Получение конфигурации OBS
+ipcMain.on('get-obs-config', async (event) => {
+    const obsConfig = await config.obs()
+    event.reply('obs-config', obsConfig)
+})
+
+// Получение конфигурации оверлея
+ipcMain.on('get-overlay-config', async (event) => {
+    const overlayConfig = await config.overlay()
+    event.reply('overlay-config', overlayConfig)
 })

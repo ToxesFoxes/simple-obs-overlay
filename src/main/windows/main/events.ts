@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { obs } from '../../api/obs'
-export type WindowState = 'loading' | 'config' | 'overlay'
+export type WindowState = 'loading' | 'loading-with-error' | 'config' | 'overlay'
 
 export const bindEvents = (w: BrowserWindow) => {
     const send = (w.webContents.send).bind(w.webContents)
@@ -29,6 +29,13 @@ export const bindEvents = (w: BrowserWindow) => {
             case 'loading': {
                 w.setSize(280, 108)
                 w.setMaximumSize(280, 108)
+                w.setResizable(false)
+                w.setMaximizable(false)
+                break
+            }
+            case 'loading-with-error': {
+                w.setSize(280, 230)
+                w.setMaximumSize(280, 230)
                 w.setResizable(false)
                 w.setMaximizable(false)
                 break
