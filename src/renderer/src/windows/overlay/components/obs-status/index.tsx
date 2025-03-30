@@ -47,6 +47,19 @@ export const ObsStatus = () => {
         ipc.send('obs-refresh-status')
     }
 
+    const handleColdStart = (status: OBSResponseTypes['GetRecordStatus']) => {
+        if (status.outputActive) {
+            setRecordTime(Math.ceil(status.outputDuration / 1000))
+            setRecordState(RecordStatesEnum.started)
+        } else if (status.outputPaused) {
+            setRecordTime(Math.ceil(status.outputDuration / 1000))
+            setRecordState(RecordStatesEnum.paused)
+        } else {
+            setRecordTime(0)
+            setRecordState(null)
+        }
+    }
+
     const pause = (): void => {
         ipc.send('obs-record-pause'); refresh()
     }
@@ -85,6 +98,11 @@ export const ObsStatus = () => {
             console.log('status', status)
             const newTime = Math.ceil(status.outputDuration / 1000)
             setRecordTime(newTime)
+
+            // Handle cold start when receiving status
+            if (recordState === null) {
+                handleColdStart(status)
+            }
         })
         ipc.on('obs-record-state-changed', (_, state: OBSEventTypes['RecordStateChanged']) => {
             const currentState = state.outputState
