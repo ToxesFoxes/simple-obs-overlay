@@ -82,7 +82,7 @@ export class WindowManager {
 
     // Apply window settings directly
     this.window.setSize(config.width, config.height)
-    this.window.setMinimumSize(config.width, config.height)
+    // this.window.setMinimumSize(config.width, config.height)
     this.window.setResizable(config.resizable)
     this.window.setMaximizable(config.maximizable)
 

@@ -43,10 +43,10 @@ const OverlaySettings: React.FC = () => {
                             />
                         </StyledFormItem>
 
-                        <StyledFormItem label="Show Pause Button">
+                        <StyledFormItem label="Show Time Text">
                             <Switch
-                                checked={overlay.showPauseButton}
-                                onChange={() => handleOverlayToggle('showPauseButton')}
+                                checked={overlay.showTimeText}
+                                onChange={() => handleOverlayToggle('showTimeText')}
                             />
                         </StyledFormItem>
 

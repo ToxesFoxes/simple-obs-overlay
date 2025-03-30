@@ -7,7 +7,7 @@ export interface Position {
 
 export interface OverlayState {
     showStatusText: boolean
-    showPauseButton: boolean
+    showTimeText: boolean
     showRefreshButton: boolean
     defaultPosition: 'center' | 'custom'
     customPosition: Position
@@ -18,7 +18,7 @@ export interface OverlayState {
 
 const initialState: OverlayState = {
     showStatusText: true,
-    showPauseButton: true,
+    showTimeText: true,
     showRefreshButton: true,
     defaultPosition: 'center',
     customPosition: { x: 0, y: 0 },
@@ -35,7 +35,7 @@ export const overlaySlice = createSlice({
             return { ...state, ...payload }
         },
         toggleOption: (state, { payload }: PayloadAction<keyof Pick<OverlayState,
-            'showStatusText' | 'showPauseButton' | 'showRefreshButton'>>) => {
+            'showStatusText' | 'showRefreshButton' | 'showTimeText'>>) => {
             state[payload] = !state[payload]
         }
     }

@@ -148,54 +148,51 @@ export const ObsStatus = () => {
                 <Badge status={getBadgeStatus()} />
 
                 {overlaySettings.showStatusText && (
-                    <>
-                        <Typography.Text style={{ minWidth: '40px' }}>{getStatusText()}</Typography.Text>
-                        <Typography.Text>{formatDuration(duration(recordTime))}</Typography.Text>
-                    </>
+                    <Typography.Text style={{ minWidth: '40px' }}>{getStatusText()}</Typography.Text>
                 )}
 
-                {overlaySettings.showPauseButton && (
-                    <>
-                        {!recording && !paused && obsConnected && (
-                            <Button
-                                type="primary"
-                                size="small"
-                                icon={<PlayCircleOutlined />}
-                                onClick={start}
-                                style={{ backgroundColor: '#52c41a' }}
-                            />
-                        )}
+                {overlaySettings.showTimeText && (
+                    <Typography.Text>{formatDuration(duration(recordTime))}</Typography.Text>
+                )}
 
-                        {recording && !paused && (
-                            <Button
-                                size="small"
-                                icon={<PauseCircleOutlined />}
-                                onClick={pause}
-                                style={{ backgroundColor: '#faad14', color: '#000' }}
-                                disabled={!obsConnected}
-                            />
-                        )}
+                {!recording && !paused && obsConnected && (
+                    <Button
+                        type="primary"
+                        size="small"
+                        icon={<PlayCircleOutlined />}
+                        onClick={start}
+                        style={{ backgroundColor: '#52c41a' }}
+                    />
+                )}
 
-                        {paused && (
-                            <Button
-                                size="small"
-                                icon={<PlayCircleOutlined />}
-                                onClick={resume}
-                                style={{ backgroundColor: '#52c41a' }}
-                                disabled={!obsConnected}
-                            />
-                        )}
+                {recording && !paused && (
+                    <Button
+                        size="small"
+                        icon={<PauseCircleOutlined />}
+                        onClick={pause}
+                        style={{ backgroundColor: '#faad14', color: '#000' }}
+                        disabled={!obsConnected}
+                    />
+                )}
 
-                        {(recording || paused) && (
-                            <Button
-                                size="small"
-                                danger
-                                icon={<StopOutlined />}
-                                onClick={stop}
-                                disabled={!obsConnected}
-                            />
-                        )}
-                    </>
+                {paused && (
+                    <Button
+                        size="small"
+                        icon={<PlayCircleOutlined />}
+                        onClick={resume}
+                        style={{ backgroundColor: '#52c41a' }}
+                        disabled={!obsConnected}
+                    />
+                )}
+
+                {(recording || paused) && (
+                    <Button
+                        size="small"
+                        danger
+                        icon={<StopOutlined />}
+                        onClick={stop}
+                        disabled={!obsConnected}
+                    />
                 )}
             </Flex>
             <Flex>
