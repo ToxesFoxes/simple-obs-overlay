@@ -121,10 +121,10 @@ export const ObsStatus = () => {
     }
 
     const getStatusText = () => {
-        if (!obsConnected) return 'Нет соединения'
-        if (recording) return 'Запись'
-        if (paused) return 'Пауза'
-        return 'Готов'
+        if (!obsConnected) return 'Not connected'
+        if (recording) return 'Recording'
+        if (paused) return 'Paused'
+        return 'Ready'
     }
 
     return (
