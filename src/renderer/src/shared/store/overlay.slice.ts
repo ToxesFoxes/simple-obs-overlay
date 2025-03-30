@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AppDispatch } from '.'
 
 export interface Position {
     x: number
@@ -10,7 +9,6 @@ export interface OverlayState {
     showStatusText: boolean
     showPauseButton: boolean
     showRefreshButton: boolean
-    showMoveButton: boolean
     defaultPosition: 'center' | 'custom'
     customPosition: Position
     idleTimeSeconds: number
@@ -22,7 +20,6 @@ const initialState: OverlayState = {
     showStatusText: true,
     showPauseButton: true,
     showRefreshButton: true,
-    showMoveButton: true,
     defaultPosition: 'center',
     customPosition: { x: 0, y: 0 },
     idleTimeSeconds: 5,
@@ -37,11 +34,8 @@ export const overlaySlice = createSlice({
         updateOverlaySettings: (state, { payload }: PayloadAction<Partial<OverlayState>>) => {
             return { ...state, ...payload }
         },
-        updateCustomPosition: (state, { payload }: PayloadAction<Position>) => {
-            state.customPosition = payload
-        },
         toggleOption: (state, { payload }: PayloadAction<keyof Pick<OverlayState,
-            'showStatusText' | 'showPauseButton' | 'showRefreshButton' | 'showMoveButton'>>) => {
+            'showStatusText' | 'showPauseButton' | 'showRefreshButton'>>) => {
             state[payload] = !state[payload]
         }
     }
@@ -49,7 +43,6 @@ export const overlaySlice = createSlice({
 
 export const {
     updateOverlaySettings,
-    updateCustomPosition,
     toggleOption
 } = overlaySlice.actions
 

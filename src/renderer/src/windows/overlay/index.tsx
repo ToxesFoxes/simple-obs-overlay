@@ -2,6 +2,7 @@ import { useInterval } from 'usehooks-ts'
 import { ObsStatus } from './components/obs-status'
 import { FC, useEffect, useRef, useState } from 'react'
 import { Flex } from 'antd'
+import { useAppSelector } from '../../shared/store'
 
 export const OverlayWindow: FC<{}> = () => {
     const [_activeTime, setActiveTime] = useState(0)
@@ -10,6 +11,9 @@ export const OverlayWindow: FC<{}> = () => {
     const [isMouseInside, setIsMouseInside] = useState(false)
     const overlayRef = useRef<HTMLDivElement | null>(null)
 
+    // Получаем настройки оверлея из Redux store
+    const overlaySettings = useAppSelector(state => state.overlaySlice)
+
     useInterval(() => {
         setActiveTime((prev) => prev + 1)
 
@@ -17,8 +21,8 @@ export const OverlayWindow: FC<{}> = () => {
         if (!isMouseInside) {
             setInactiveTime(prev => {
                 const newTime = prev + 1
-                // If inactive for 1 second and currently active, set to inactive
-                if (newTime >= 1 && isActive) {
+                // Используем настройки времени бездействия из Redux
+                if (newTime >= overlaySettings.idleTimeSeconds && isActive) {
                     setIsActive(false)
                 }
                 return newTime
@@ -65,12 +69,17 @@ export const OverlayWindow: FC<{}> = () => {
         }
     }, [overlayRef.current])
 
+    // Вычисляем текущую прозрачность на основе активности и настроек из Redux
+    const opacity = isActive
+        ? overlaySettings.initialOpacity
+        : overlaySettings.idleOpacity
+
     return (
         <Flex
             vertical
             ref={overlayRef}
             style={{
-                opacity: isActive ? 1 : 0.1,
+                opacity,
                 transition: 'opacity 0.3s ease-in-out',
             }}
         >

@@ -1,8 +1,8 @@
+import { DragOutlined, PauseCircleOutlined, PlayCircleOutlined, ReloadOutlined, SettingOutlined, StopOutlined } from '@ant-design/icons'
 import { Badge, Button, Flex, Typography } from 'antd'
+import dayjs from 'dayjs'
 import { OBSEventTypes, OBSResponseTypes } from 'obs-websocket-js'
 import { useEffect, useState } from 'react'
-import { DragOutlined, ReloadOutlined, PlayCircleOutlined, PauseCircleOutlined, StopOutlined, SettingOutlined } from '@ant-design/icons'
-import dayjs from 'dayjs'
 import { useInterval } from 'usehooks-ts'
 import { useAppDispatch, useAppSelector } from '../../../../shared/store'
 import { changeWindow } from '../../../../shared/store/windows.slice'
@@ -39,6 +39,8 @@ export const ObsStatus = () => {
     const [recordTime, setRecordTime] = useState(0)
     const ipc = window.electron.ipcRenderer
     const dispatch = useAppDispatch()
+
+    const overlaySettings = useAppSelector(state => state.overlaySlice)
     const obsConnected = useAppSelector(state => state.obsSlice.connected)
     const recording = recordState === RecordStatesEnum.started || recordState === RecordStatesEnum.resumed
     const paused = recordState === RecordStatesEnum.paused
@@ -85,7 +87,6 @@ export const ObsStatus = () => {
         }
     }, [recordState])
 
-    // Only increment time when recording and not paused
     useInterval(() => {
         if (recording && !paused) {
             setRecordTime(prev => prev + 1)
@@ -94,19 +95,15 @@ export const ObsStatus = () => {
 
     useEffect(() => {
         ipc.on('obs-record-status', (_, status: OBSResponseTypes['GetRecordStatus']) => {
-            // Update the record time from OBS
-            console.log('status', status)
             const newTime = Math.ceil(status.outputDuration / 1000)
             setRecordTime(newTime)
 
-            // Handle cold start when receiving status
             if (recordState === null) {
                 handleColdStart(status)
             }
         })
         ipc.on('obs-record-state-changed', (_, state: OBSEventTypes['RecordStateChanged']) => {
             const currentState = state.outputState
-            console.log('state', currentState)
             setRecordState(currentState as RecordStates)
         })
         refresh()
@@ -116,7 +113,6 @@ export const ObsStatus = () => {
         }
     }, [])
 
-    // Determine badge status based on recording and paused state
     const getBadgeStatus = () => {
         if (!obsConnected) return 'error'
         if (recording) return 'processing'
@@ -124,7 +120,6 @@ export const ObsStatus = () => {
         return 'default'
     }
 
-    // Get status text
     const getStatusText = () => {
         if (!obsConnected) return 'Нет соединения'
         if (recording) return 'Запись'
@@ -151,56 +146,69 @@ export const ObsStatus = () => {
                 }}
             >
                 <Badge status={getBadgeStatus()} />
-                <Typography.Text style={{ minWidth: '40px' }}>{getStatusText()}</Typography.Text>
-                <Typography.Text>{formatDuration(duration(recordTime))}</Typography.Text>
 
-                {!recording && !paused && obsConnected && (
-                    <Button
-                        type="primary"
-                        size="small"
-                        icon={<PlayCircleOutlined />}
-                        onClick={start}
-                        style={{ backgroundColor: '#52c41a' }}
-                    />
+                {overlaySettings.showStatusText && (
+                    <>
+                        <Typography.Text style={{ minWidth: '40px' }}>{getStatusText()}</Typography.Text>
+                        <Typography.Text>{formatDuration(duration(recordTime))}</Typography.Text>
+                    </>
                 )}
 
-                {recording && !paused && (
-                    <Button
-                        size="small"
-                        icon={<PauseCircleOutlined />}
-                        onClick={pause}
-                        style={{ backgroundColor: '#faad14', color: '#000' }}
-                        disabled={!obsConnected}
-                    />
-                )}
+                {overlaySettings.showPauseButton && (
+                    <>
+                        {!recording && !paused && obsConnected && (
+                            <Button
+                                type="primary"
+                                size="small"
+                                icon={<PlayCircleOutlined />}
+                                onClick={start}
+                                style={{ backgroundColor: '#52c41a' }}
+                            />
+                        )}
 
-                {paused && (
-                    <Button
-                        size="small"
-                        icon={<PlayCircleOutlined />}
-                        onClick={resume}
-                        style={{ backgroundColor: '#52c41a' }}
-                        disabled={!obsConnected}
-                    />
-                )}
+                        {recording && !paused && (
+                            <Button
+                                size="small"
+                                icon={<PauseCircleOutlined />}
+                                onClick={pause}
+                                style={{ backgroundColor: '#faad14', color: '#000' }}
+                                disabled={!obsConnected}
+                            />
+                        )}
 
-                {(recording || paused) && (
-                    <Button
-                        size="small"
-                        danger
-                        icon={<StopOutlined />}
-                        onClick={stop}
-                        disabled={!obsConnected}
-                    />
+                        {paused && (
+                            <Button
+                                size="small"
+                                icon={<PlayCircleOutlined />}
+                                onClick={resume}
+                                style={{ backgroundColor: '#52c41a' }}
+                                disabled={!obsConnected}
+                            />
+                        )}
+
+                        {(recording || paused) && (
+                            <Button
+                                size="small"
+                                danger
+                                icon={<StopOutlined />}
+                                onClick={stop}
+                                disabled={!obsConnected}
+                            />
+                        )}
+                    </>
                 )}
             </Flex>
             <Flex>
-                <Button
-                    type='text'
-                    size='middle'
-                    onClick={refresh}
-                    icon={<ReloadOutlined />}
-                    disabled={!obsConnected} />
+                {overlaySettings.showRefreshButton && (
+                    <Button
+                        type='text'
+                        size='middle'
+                        onClick={refresh}
+                        icon={<ReloadOutlined />}
+                        disabled={!obsConnected}
+                    />
+                )}
+
                 <Button
                     type='text'
                     size='middle'

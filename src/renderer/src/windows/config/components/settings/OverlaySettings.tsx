@@ -1,8 +1,8 @@
+import { Button, Form, Slider, Space, Switch, Typography } from 'antd'
 import React from 'react'
-import { useAppDispatch, useAppSelector } from '../../../../shared/store'
-import { updateOverlaySettings, updateCustomPosition, saveOverlayConfig } from '../../../../shared/store/overlay.slice'
-import { Form, Button, Switch, Radio, Slider, InputNumber, Typography, Row, Col, Space } from 'antd'
 import styled from 'styled-components'
+import { useAppDispatch, useAppSelector } from '../../../../shared/store'
+import { saveOverlayConfig, updateOverlaySettings } from '../../../../shared/store/overlay.slice'
 
 const { Title } = Typography
 
@@ -20,17 +20,6 @@ const OverlaySettings: React.FC = () => {
 
     const handleOverlayToggle = (setting: keyof typeof overlay) => {
         dispatch(updateOverlaySettings({ [setting]: !overlay[setting] }))
-    }
-
-    const handlePositionTypeChange = (type: 'center' | 'custom') => {
-        dispatch(updateOverlaySettings({ defaultPosition: type }))
-    }
-
-    const handleCustomPositionChange = (axis: 'x' | 'y', value: number) => {
-        dispatch(updateCustomPosition({
-            ...overlay.customPosition,
-            [axis]: value
-        }))
     }
 
     const handleOpacityChange = (type: 'initialOpacity' | 'idleOpacity', value: number) => {
@@ -67,54 +56,6 @@ const OverlaySettings: React.FC = () => {
                                 onChange={() => handleOverlayToggle('showRefreshButton')}
                             />
                         </StyledFormItem>
-
-                        <StyledFormItem label="Show Move Button">
-                            <Switch
-                                checked={overlay.showMoveButton}
-                                onChange={() => handleOverlayToggle('showMoveButton')}
-                            />
-                        </StyledFormItem>
-                    </Form>
-                </Space>
-            </div>
-            <div className="settings-tab-content">
-                <Title level={3}>Position Settings</Title>
-                <Space direction="vertical" style={{ width: '100%' }}>
-                    <Form layout="vertical">
-                        <StyledFormItem label="Position Type">
-                            <Radio.Group
-                                value={overlay.defaultPosition}
-                                onChange={(e) => handlePositionTypeChange(e.target.value)}
-                            >
-                                <Radio value="center">Center</Radio>
-                                <Radio value="custom">Custom</Radio>
-                            </Radio.Group>
-                        </StyledFormItem>
-
-                        {overlay.defaultPosition === 'custom' && (
-                            <div>
-                                <Row gutter={16}>
-                                    <Col span={12}>
-                                        <StyledFormItem label="X Position">
-                                            <InputNumber
-                                                value={overlay.customPosition.x}
-                                                onChange={(value) => handleCustomPositionChange('x', Number(value))}
-                                                style={{ width: '100%' }}
-                                            />
-                                        </StyledFormItem>
-                                    </Col>
-                                    <Col span={12}>
-                                        <StyledFormItem label="Y Position">
-                                            <InputNumber
-                                                value={overlay.customPosition.y}
-                                                onChange={(value) => handleCustomPositionChange('y', Number(value))}
-                                                style={{ width: '100%' }}
-                                            />
-                                        </StyledFormItem>
-                                    </Col>
-                                </Row>
-                            </div>
-                        )}
                     </Form>
                 </Space>
             </div>
