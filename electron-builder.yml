@@ -1,5 +1,5 @@
 appId: com.electron.app
-productName: my-app
+productName: simple-obs-overlay
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: my-app
+  executableName: simple-obs-overlay
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

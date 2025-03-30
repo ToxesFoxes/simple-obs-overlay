@@ -1,4 +1,4 @@
-# my-app
+# simple-obs-overlay
 
 An Electron application with React and TypeScript designed for basic OBS Studio control through an overlay.
 
