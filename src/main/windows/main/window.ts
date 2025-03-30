@@ -4,11 +4,11 @@ import icon from '../../../../resources/icon.png?asset'
 import { is } from '@electron-toolkit/utils'
 import { PRELOAD_DIR, RENDERER_DIR } from '../../paths'
 import { bindEvents } from './events'
-const {
-  default: installExtension,
-  REDUX_DEVTOOLS,
-  REACT_DEVELOPER_TOOLS
-} = require("electron-devtools-installer")
+// const {
+//   default: installExtension,
+//   REDUX_DEVTOOLS,
+//   REACT_DEVELOPER_TOOLS
+// } = require("electron-devtools-installer")
 
 export const MainWindow = (): BrowserWindow => {
   // Create the browser window.
@@ -29,19 +29,19 @@ export const MainWindow = (): BrowserWindow => {
   })
   bindEvents(w)
   w.setIgnoreMouseEvents(false, { forward: true })
-  if (is.dev) {
+  // if (is.dev) {
 
-    // Errors are thrown if the dev tools are opened
-    // before the DOM is ready
-    w.webContents.once("dom-ready", async () => {
-      await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
-        .then((name) => console.log(`Added Extension:  ${name}`))
-        .catch((err) => console.log("An error occurred: ", err))
-        .finally(() => {
-          w.webContents.openDevTools()
-        })
-    })
-  }
+  //   // Errors are thrown if the dev tools are opened
+  //   // before the DOM is ready
+  //   w.webContents.once("dom-ready", async () => {
+  //     await installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+  //       .then((name) => console.log(`Added Extension:  ${name}`))
+  //       .catch((err) => console.log("An error occurred: ", err))
+  //       .finally(() => {
+  //         w.webContents.openDevTools()
+  //       })
+  //   })
+  // }
   w.on('ready-to-show', () => { w.show() })
 
   w.webContents.setWindowOpenHandler((details) => {
