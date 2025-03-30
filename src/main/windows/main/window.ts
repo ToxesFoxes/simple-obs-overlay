@@ -13,7 +13,7 @@ const {
 export const MainWindow = (): BrowserWindow => {
   // Create the browser window.
   const w = new BrowserWindow({
-    width: 300,
+    width: 340,
     height: 108,
     show: true,
     autoHideMenuBar: true,
