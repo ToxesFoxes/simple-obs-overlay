@@ -15,17 +15,17 @@ function App(): JSX.Element {
   const isLoading = currentState === 'loading' || currentState === 'loading-with-error'
   const obsConnected = useAppSelector(state => state.obsSlice.connected)
 
-  // Используем useBoolean для управления переходом на оверлей
+  // Using useBoolean to manage overlay transition
   const { value: shouldTransition, setTrue: startTransition, setFalse: stopTransition } = useBoolean(false)
 
-  // Синхронизация состояния окна при запуске
+  // Window state synchronization at startup
   useEffect(() => {
     const initializeWindowState = async () => {
       try {
-        // Получаем текущее состояние окна из main process
+        // Get current window state from main process
         const currentWindowState = await syncWindowState()
 
-        // Обновляем состояние в Redux без отправки обратно в main process
+        // Update state in Redux without sending back to the main process
         dispatch(windowStateChanged(currentWindowState))
       } catch (error) {
         console.error('Failed to initialize window state:', error)
@@ -34,7 +34,7 @@ function App(): JSX.Element {
 
     initializeWindowState()
 
-    // Подписываемся на изменения состояния окна от main process
+    // Subscribe to window state changes from main process
     ipc.on('window-state-changed', (_, state) => {
       dispatch(windowStateChanged(state))
     })
@@ -44,14 +44,14 @@ function App(): JSX.Element {
     }
   }, [dispatch, ipc])
 
-  // Загрузка конфигурации при старте приложения
+  // Loading configuration at application startup
   useEffect(() => {
-    // Запрашиваем конфигурацию OBS
+    // Request OBS configuration
     ipc.send('get-obs-config')
-    // Запрашиваем конфигурацию оверлея
+    // Request overlay configuration
     ipc.send('get-overlay-config')
 
-    // Слушатели для получения конфигурации
+    // Listeners for configuration reception
     ipc.on('obs-config', (_event, config) => {
       if (config) {
         dispatch(updateConfig(config))
@@ -70,12 +70,12 @@ function App(): JSX.Element {
     }
   }, [dispatch, ipc])
 
-  // Обработка изменений состояния подключения к OBS
+  // Handle OBS connection state changes
   useEffect(() => {
     const handleObsStatus = (_event: any, data: any) => {
       console.log('obs-connect-status', data)
       if (data) {
-        // Обновляем статус подключения
+        // Update connection status
         dispatch(setConnected(!!data.connected))
       }
     }
@@ -87,22 +87,22 @@ function App(): JSX.Element {
     }
   }, [dispatch, ipc])
 
-  // Функция для перехода в оверлей
+  // Function for transitioning to overlay
   const transitionToOverlay = () => {
     if (shouldTransition) {
-      // Явно вызываем changeWindow, которая гарантирует, что 
-      // сообщение изменения будет отправлено в main process
+      // Explicitly call changeWindow, which ensures that
+      // the change message will be sent to the main process
       dispatch(changeWindow({ windowState: 'overlay' }))
       stopTransition()
     }
   }
 
-  // Используем useTimeout для перехода с задержкой
+  // Using useTimeout for delayed transition
   useTimeout(transitionToOverlay, shouldTransition ? 1000 : null)
 
-  // Отдельный эффект для реагирования на изменение статуса подключения
+  // Separate effect for reacting to connection status changes
   useEffect(() => {
-    // Если подключились и находимся в загрузочном окне, запускаем таймер перехода
+    // If connected and in loading window, start transition timer
     if (obsConnected && isLoading) {
       startTransition()
     } else {

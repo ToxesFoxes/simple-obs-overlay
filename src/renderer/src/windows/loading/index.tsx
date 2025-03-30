@@ -14,42 +14,42 @@ export const LoadingWindow = () => {
     const obsConnected = useAppSelector(state => state.obsSlice.connected)
     const attemptsMade = useRef(false)
 
-    // Используем useBoolean для управления процессом подключения
+    // Using useBoolean to manage the connection process
     const { value: isConnecting, setTrue: startConnecting, setFalse: stopConnecting } = useBoolean(false)
 
-    // Функция для второй попытки подключения
+    // Function for the second connection attempt
     const secondConnectionAttempt = () => {
         if (!obsConnected) {
             connectToObs()
             setConnectionAttempts(2)
-            // Показываем подсказку сразу после второй попытки
+            // Show the tip immediately after the second attempt
             setShowConnectionTip(true)
         }
         stopConnecting()
     }
 
-    // Используем useTimeout вместо setTimeout
+    // Using useTimeout instead of setTimeout
     useTimeout(secondConnectionAttempt, isConnecting ? 3000 : null)
 
-    // Первая попытка подключения при загрузке компонента
+    // First connection attempt when the component loads
     useEffect(() => {
-        // Если уже подключены, ничего не делаем
+        // If already connected, do nothing
         if (obsConnected) {
             return
         }
 
-        // Если это первая загрузка компонента, пытаемся подключиться сразу
+        // If this is the first component load, try to connect immediately
         if (!attemptsMade.current) {
             attemptsMade.current = true
             connectToObs()
             setConnectionAttempts(1)
 
-            // Запускаем таймер для второй попытки
+            // Start the timer for the second attempt
             startConnecting()
         }
     }, [obsConnected])
 
-    // Отдельный эффект для отображения подсказки, если есть 2 попытки и нет подключения
+    // Separate effect for displaying the tip if there are 2 attempts and no connection
     useEffect(() => {
         if (connectionAttempts >= 2 && !obsConnected) {
             setShowConnectionTip(true)
@@ -58,7 +58,7 @@ export const LoadingWindow = () => {
         }
     }, [connectionAttempts, obsConnected])
 
-    // Эффект для изменения размера окна при отображении ошибки
+    // Effect for changing the window size when displaying an error
     useEffect(() => {
         if (showConnectionTip && !obsConnected) {
             dispatch(changeWindow({ windowState: 'loading-with-error' }))
@@ -68,7 +68,7 @@ export const LoadingWindow = () => {
     }, [showConnectionTip, obsConnected, dispatch])
 
     const goToConfig = () => {
-        // Останавливаем процесс второй попытки подключения, если он активен
+        // Stop the second connection attempt process if it's active
         stopConnecting()
         dispatch(changeWindow({ windowState: 'config' }))
     }
@@ -98,14 +98,14 @@ export const LoadingWindow = () => {
                 <Flex vertical gap='small' style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     {showConnectionTip && !obsConnected ? (
                         <Alert
-                            message="Не удается подключиться к OBS"
+                            message="Unable to connect to OBS"
                             description={
                                 <Paragraph>
-                                    Пожалуйста, проверьте:
+                                    Please check:
                                     <ul>
-                                        <li>Запущен ли OBS Studio</li>
-                                        <li>Включен ли WebSocket-сервер в настройках OBS</li>
-                                        <li>Правильно ли указаны параметры подключения</li>
+                                        <li>Is OBS Studio running</li>
+                                        <li>Is the WebSocket server enabled in OBS settings</li>
+                                        <li>Are the connection parameters correct</li>
                                     </ul>
                                 </Paragraph>
                             }
@@ -115,8 +115,8 @@ export const LoadingWindow = () => {
                     ) : <>
                         <Typography.Text>
                             {obsConnected
-                                ? 'Подключено к OBS, переход на оверлей...'
-                                : `Подключение к OBS... (попытка ${connectionAttempts}/2)`
+                                ? 'Connected to OBS, redirecting to overlay...'
+                                : `Connecting to OBS... (attempt ${connectionAttempts}/2)`
                             }
                         </Typography.Text>
                         <Flex>

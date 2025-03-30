@@ -11,7 +11,7 @@ export const OverlayWindow: FC<{}> = () => {
     const [isMouseInside, setIsMouseInside] = useState(false)
     const overlayRef = useRef<HTMLDivElement | null>(null)
 
-    // Получаем настройки оверлея из Redux store
+    // Get overlay settings from Redux store
     const overlaySettings = useAppSelector(state => state.overlaySlice)
 
     useInterval(() => {
@@ -21,7 +21,7 @@ export const OverlayWindow: FC<{}> = () => {
         if (!isMouseInside) {
             setInactiveTime(prev => {
                 const newTime = prev + 1
-                // Используем настройки времени бездействия из Redux
+                // Use idle time settings from Redux
                 if (newTime >= overlaySettings.idleTimeSeconds && isActive) {
                     setIsActive(false)
                 }
@@ -69,7 +69,7 @@ export const OverlayWindow: FC<{}> = () => {
         }
     }, [overlayRef.current])
 
-    // Вычисляем текущую прозрачность на основе активности и настроек из Redux
+    // Calculate current opacity based on activity and Redux settings
     const opacity = isActive
         ? overlaySettings.initialOpacity
         : overlaySettings.idleOpacity
